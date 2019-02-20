@@ -7,6 +7,12 @@ set -o xtrace
 #trap 'echo exiting from the script' EXIT
 #echo 'start the script'
 
+function errtrap {
+es=$?
+echo "ERROR: Command exited with status $es."
+}
+trap errtrap ERR
+
 trap 'echo Thank you for playing!' EXIT
 magicnum=$(($RANDOM%10+1))
 
