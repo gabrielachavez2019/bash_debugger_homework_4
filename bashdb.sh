@@ -1,28 +1,31 @@
-#!/bin/bash
+#!/bin/bash 
 
-#set -o noexec
-#set -o verbose
-set -o xtrace
+#set -o noexec    #Dont run commands; check for syntax errors only
 
-#trap 'echo exiting from the script' EXIT
-#echo 'start the script'
+# bashdb - a bash debugger
+# Driver Script: concatenates the preamble and the target script
+# and then executes the new script.
 
-function errtrap {
-es=$?
-echo "ERROR: Command exited with status $es."
-}
-trap errtrap ERR
+echo 'bash Debugger version 1.0'
 
-trap 'echo Thank you for playing!' EXIT
-magicnum=$(($RANDOM%10+1))
+_dbname=${0##*/}
 
-echo 'guess a number between 1 and 10: '
-while read -p 'Guess: ' guess ; do
-    sleep 4
-    if [ "$guess" = $magicnum ]; then
-       echo 'Right!'
-       exit
-    fi
-    echo 'Wrong!'
-done
+if (( $# < 1 )) ; then
+    echo "$_dbname: Usage: $_dbname filename" >&2
+    exit 1
+fi
 
+_guineapig=$1
+
+if [ ! -r $1 ]; then
+    echo "$_dbname: Cannot read file '$_guineapig'." >&2
+    exit 1
+fi
+
+shift
+
+_tmpdir=/tmp
+_libdir=.
+_debugfile=$_tmpdir/bashdb.$$ # temporary file for script that is being debugged
+cat $_libdir/bashdb.pre $_guineapig > $_debugfile
+exec bash $_debugfile $_guineapig $_tmpdir $_libdir "$@"  #runs the newly created script
